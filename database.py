@@ -56,9 +56,9 @@ database = {
         "sgroup" : "",
     },
     "vayu" : {
-        "device" : "",
-        "maintainer" : "@",
-        "sgroup" : "",
+        "device" : "POCO X3 Pro",
+        "maintainer" : "@clhexftw",
+        "sgroup" : "https://t.me/clhex_chat",
     },
     "juice" : {
         "device" : "Poco M3/Redmi 9T/Redmi Note 4G/Redmi 9 Power",
@@ -77,7 +77,7 @@ database = {
     },
     "ginkgo" : {
         "device" : "Redmi Note 8/8T",
-        "maintainer" : "@Azvxyx",
+        "maintainer" : "@Aetherishere",
         "sgroup" : "https://t.me/ProjectBlazeGinkgo",
     },
     "alioth" : {
@@ -96,9 +96,9 @@ database = {
         "sgroup" : "https://t.me/lemonkebab_support",
     },
     "X00T" : {
-        "device" : "",
-        "maintainer" : "@",
-        "sgroup" : "",
+        "device" : "POCO X3 Pro",
+        "maintainer" : "@clhexftw",
+        "sgroup" : "https://t.me/clhex_chat",
     },
     "ysl" : {
         "device" : "Redmi Y2/S2",
@@ -111,9 +111,9 @@ database = {
         "sgroup" : "https://t.me/Project_Blaze",
     },
     "mido" : {
-        "device" : "",
-        "maintainer" : "@",
-        "sgroup" : "",
+        "device" : "Redmi Note 4",
+        "maintainer" : "@pbharadwaj_95",
+        "sgroup" : "https://t.me/midorandom",
     },
     "raphael" : {
         "device" : "Redmi K20 Pro / MI 9T Pro",

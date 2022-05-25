@@ -5,6 +5,7 @@ from tqdm.contrib.telegram import tqdm, trange
 from base64 import decodebytes
 from database import *
 from pathlib import Path
+from utils.download import *
 import pathlib 
 import logging
 import pysftp
@@ -66,6 +67,7 @@ Supported commands :
 1. /start
 2. /help
 3. /post
+4. /sfupload
 
 You can use any command without any arguments for help related to that command.
 
@@ -92,22 +94,28 @@ e.g. :
 Sorry, I couldn't find your device codename <a href="{gdevurl}" >here</a>.
 Please make PR if you didn't.
 '''
+    urlmess = f'''
+Please provide device changelog link.
+Use /post for more info.
+'''
     arg = context.args
-    codename = None
-    dclog = None
+    # codename = None
+    # dclog = None
     try:
         codename = arg[0]
-        dclog = arg[1]
+        if codename not in devices:
+            await context.bot.send_message(CHAT_ID, reply_to_message_id=mess_id, text=dmess, parse_mode='HTML', disable_web_page_preview=True)
+            return
+        else:
+            codename = codename
+        try:
+            dclog = arg[1]
+        except IndexError:
+            await context.bot.send_message(CHAT_ID, reply_to_message_id=mess_id, text=urlmess, parse_mode='HTML', disable_web_page_preview=True)
+            return
     except IndexError:
         await context.bot.send_message(CHAT_ID, reply_to_message_id=mess_id, text=help, parse_mode='HTML', disable_web_page_preview=True)
         return
-    if codename in devices:
-        pass
-    else:
-        await content.bot.send_message(CHAT_ID, reply_to_message_id=mess_id, text=dmess, parse_mode='HTML', disable_web_page_preview=True)
-        return
-    if dclog == None:
-        pass
     current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
     day = current_time.day
     month = current_time.month
@@ -130,3 +138,79 @@ Project Blaze v{database['BlazeVersion']} - OFFICIAL | Android 12L
 #Blaze #{codename} #Android12L #S
 '''
     await context.bot.send_photo(CHAT_ID, photo=open('images/blaze1.2.png', 'rb'), caption=mess, reply_to_message_id=mess_id, parse_mode='HTML')
+
+# SFUpload
+async def sfupload(update: Update, context: CallbackContext.DEFAULT_TYPE):
+    # SourceForge variables
+    username = "ganesh314159"
+    mess_id = update.effective_message.message_id
+    bmess_id = mess_id+1
+    arg = context.args
+    help = f'''
+Use this command in following format to upload GDrive files to SourceForge.
+
+/sfupload device_codename gdrive_link
+
+device_codename is codename for your device.
+Please use UpperCase letters if you did same <a href="{gdevurl}">here</a>
+
+gdrive_link is GoogleDrive link of Blaze rom file for your device.
+Make sure your GDrive file is public.
+
+e.g. :
+/sfupload onclite https://drive.google.com/uc?id=1UZ_HrwsCDA6yobGSrHgbLgn_Vvud_s3G&export=download
+
+Note :- Do not play with this command. Only use this command when you are 100% sure with your build and you want to release it.
+'''
+    dmess = f'''
+Sorry, I couldn't find your device codename <a href="{gdevurl}" >here</a>.
+Please make PR if you didn't.
+'''
+    urlmess = f'''
+Please provide GDrive url.
+Use /sfupload for more info.
+'''
+    try:
+        codename = arg[0]
+        try:
+            gdurl = arg[1]
+        except IndexError:
+            await context.bot.send_message(CHAT_ID, reply_to_message_id=mess_id, text=urlmess)
+            return
+    except IndexError:
+        await context.bot.send_message(CHAT_ID, reply_to_message_id=mess_id, text=help, parse_mode='HTML', disable_web_page_preview=True)
+        return
+    if codename in devices:
+        pass
+    else:
+        await context.bot.send_message(CHAT_ID, reply_to_message_id=mess_id, text=dmess, parse_mode='HTML', disable_web_page_preview=True)
+        return
+    name = get_file_details(gdurl)['name']
+    size = get_file_details(gdurl)['size']
+    mess = f'''
+File : 🗂️ <a href="{gdurl}" >{name}</a> 🗂️
+Status : Downloading...📤
+Size : {size}
+Target : 🌐 GoogleDrive 🌐
+'''
+    await context.bot.send_message(CHAT_ID, reply_to_message_id=mess_id, text=mess, parse_mode='HTML', disable_web_page_preview=True)
+    file_path = gdown.download(url=gdurl, output='temp/')
+    target_url = f'https://sourceforge.net/projects/projectblaze/files/{codename}/'
+    mess2 = f'''
+File : 🗂️ <a href="{gdurl}" >{name}</a> 🗂️
+Status : Uploading...📤
+Size : {size}
+Target : 🌐 <a href="{target_url}">projectblaze/{codename}</a> 🌐
+'''
+    await context.bot.edit_message_text(chat_id=chat_id, message_id=mess_id, text=mess2, parse_mode='HTML', disable_web_page_preview=True)
+    with pysftp.Connection('frs.sourceforge.net', username='ganesh314159', password=sfpass, cnopts=cnopts) as sftp:
+        with sftp.cd(f'/home/frs/project/projectblaze/{codename}'):
+            sftp.put(f'{file_path}')
+    mess3 = f'''
+File : 🗂️ <a href="{gdurl}" >{name}</a> 🗂️
+Status : Uploaded✅
+Target : 🌐 <a href="{target_url}">projectblaze/{codename}</a> 🌐
+'''
+    os.remove(f'temp/{name}')
+    await context.bot.edit_message_text(chat_id=chat_id, message_id=mess_id, text=mess3, parse_mode='HTML', disable_web_page_preview=True)
+    

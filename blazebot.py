@@ -20,6 +20,9 @@ if __name__ == '__main__':
     # Post
     post_handler = CommandHandler('post', post)
     application.add_handler(post_handler)
+    # SFUpload
+    sfupload_handler = CommandHandler('sfupload', sfupload)
+    application.add_handler(sfupload_handler)
 
 
     application.run_polling()
